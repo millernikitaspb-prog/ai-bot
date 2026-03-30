@@ -57,7 +57,7 @@ def ask_ai(message):
 	bot.send_message(chat_id, "Думаю... ⏳")
 
 	response = client.chat.completions.create(
-		model="llama-3.1-70b-versatile",
+		model="llama-3.3-70b-versatile",
 		messages=[
 			{"role": "system", "content": """Язык: русский. Все ответы строго на русском языке. В тексте не должно быть ни одного символа из других алфавитов (китайские иероглифы, латиница, арабское письмо и т.д.), кроме случаев, описанных в разделе «Язык и грамматика».
 
