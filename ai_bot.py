@@ -27,7 +27,7 @@ def start(message):
 @bot.message_handler(commands=['help'])
 def help(message):
 	bot.send_message(message.chat.id,
-		"Как общаться с ботом:\n\n"
+		"Как общаться с ботом: 🗣\n\n"
 		"• Делись своими мыслями и взглядами\n"
 		"• Задавай философские вопросы\n"
 		"• Спорь и возражай - это полезно\n\n"
