@@ -61,22 +61,23 @@ def clear(message):
 
 @bot.message_handler(func=lambda message: True)
 def ask_ai(message):
-	chat_id = message.chat.id 
+	try:
+		chat_id = message.chat.id
 
-	if chat_id not in histories:
-		histories[chat_id] = []
+		if chat_id not in histories:
+			histories[chat_id] = []
 
-	histories[chat_id].append({
-		"role": "user",
-		"content": message.text
-	})
+		histories[chat_id].append({
+			"role": "user",
+			"content": message.text
+		})
 
-	bot.send_message(chat_id, "Думаю... ⏳")
+		bot.send_message(chat_id, "Думаю... ⏳")
 
-	if len(histories[chat_id]) > 10:
-		histories[chat_id] = histories[chat_id][-10:]
+		if len(histories[chat_id]) > 10:
+			histories[chat_id] = histories[chat_id][-10:]
 
-	response = client.chat.completions.create(
+		response = client.chat.completions.create(
 		model="llama-3.3-70b-versatile",
 		messages=[
 			{"role": "system", "content": """Language: Always respond in Russian. No characters from other alphabets (Latin, Chinese, Arabic etc.) except philosopher names. Book titles only in Russian: «Критика чистого разума», «Бытие и время», «Этика».
@@ -152,6 +153,10 @@ Type 7: «Лол», «)))», «Гаглики», «🤔»"""}
 	})
 
 	bot.send_message(chat_id, answer)
+
+except Exception as e:
+		pint(f"ERROR: {e}")
+		bot.send_message(message.chat.id, "Произошла ошибка, попробуй еще раз")
 
 @app.route('/' + BOT_TOKEN, methods=['POST'])
 def webhook():
