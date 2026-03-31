@@ -154,8 +154,8 @@ Type 7: «Лол», «)))», «Гаглики», «🤔»"""}
 
 	bot.send_message(chat_id, answer)
 
-except Exception as e:
-		pint(f"ERROR: {e}")
+	except Exception as e:
+		print(f"ERROR: {e}")
 		bot.send_message(message.chat.id, "Произошла ошибка, попробуй еще раз")
 
 @app.route('/' + BOT_TOKEN, methods=['POST'])
