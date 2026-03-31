@@ -2,6 +2,7 @@ import telebot
 from groq import Groq 
 from flask import Flask, request
 import os
+import re 
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
@@ -11,6 +12,21 @@ client = Groq(api_key=GROQ_API_KEY)
 app = Flask(__name__)
 
 histories = {}
+
+def clean_response(text):
+	text = re.sub(r'[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\u0600-\u06ff]', '', text)
+	text = re.sub(r'(?<=[а-яА-ЯёЁ])[a-zA-Z]+', '', text)
+	text = re.sub(r'[a-zA-Z]+(?=[а-яА-ЯёЁ])', '', text)
+	text = re.sub(r' {2,}', ' ', text)
+	def capitalize_after(match):
+		return match.group(1) + match.group(2).upper()
+	text = re.sub(r'([.!?]\s+)([a-яёа-z])', capitalize_after, text)
+	if text and text[0].islower():
+		text = text[0].upper() + text[1:]
+	
+	text = re.sub(r'\s+([.!?,;:])', r'\1', text)
+
+	return text.strip()
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -276,6 +292,7 @@ def ask_ai(message):
 	)
 
 	answer = response.choices[0].message.content
+	answer = clean_response(answer)
 
 	histories[chat_id].append({
 		"role": "assistant",
