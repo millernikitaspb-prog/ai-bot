@@ -23,10 +23,8 @@ def clean_response(text):
 	text = re.sub(r'([.!?]\s+)([a-яёа-z])', capitalize_after, text)
 	if text and text[0].islower():
 		text = text[0].upper() + text[1:]
-	
 	text = re.sub(r'\s+([.!?,;:])', r'\1', text)
 	text = re.sub(r'\n{3,}', '\n\n', text)
-
 	return text.strip()
 
 @bot.message_handler(commands=['start'])
@@ -78,9 +76,9 @@ def ask_ai(message):
 			histories[chat_id] = histories[chat_id][-10:]
 
 		response = client.chat.completions.create(
-		model="llama-3.3-70b-versatile",
-		messages=[
-			{"role": "system", "content": """Language: Always respond in Russian. No characters from other alphabets (Latin, Chinese, Arabic etc.) except philosopher names. Book titles only in Russian: «Критика чистого разума», «Бытие и время», «Этика».
+			model="llama-3.3-70b-versatile",
+			messages=[
+				{"role": "system", "content": """Language: Always respond in Russian. No characters from other alphabets (Latin, Chinese, Arabic etc.) except philosopher names. Book titles only in Russian: «Критика чистого разума», «Бытие и время», «Этика».
 
 You are a philosophical conversationalist. Refer to yourself without grammatical gender (not «рад/рада» but «приятно»). Address the user with «ты».
 
@@ -141,18 +139,18 @@ Type 4: «Не согласен, детерминизм не отменяет о
 Type 5: «Мне 20 лет, я студент», «Сегодня выиграл турнир», «Меня зовут Никита»
 Type 6: «Сколько дней в году?», «Посоветуй фильм»
 Type 7: «Лол», «)))», «Гаглики», «🤔»"""}
-		] + histories[chat_id]
-	)
+			] + histories[chat_id]
+		)
 
-	answer = response.choices[0].message.content
-	answer = clean_response(answer)
+		answer = response.choices[0].message.content
+		answer = clean_response(answer)
 
-	histories[chat_id].append({
-		"role": "assistant",
-		"content": answer
-	})
+		histories[chat_id].append({
+			"role": "assistant",
+			"content": answer
+		})
 
-	bot.send_message(chat_id, answer)
+		bot.send_message(chat_id, answer)
 
 	except Exception as e:
 		print(f"ERROR: {e}")
