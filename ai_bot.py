@@ -14,18 +14,21 @@ app = Flask(__name__)
 histories = {}
 
 def clean_response(text):
-	text = re.sub(r'[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\u0600-\u06ff]', '', text)
-	text = re.sub(r'(?<=[а-яА-ЯёЁ])[a-zA-Z]+', '', text)
-	text = re.sub(r'[a-zA-Z]+(?=[а-яА-ЯёЁ])', '', text)
-	text = re.sub(r' {2,}', ' ', text)
-	def capitalize_after(match):
-		return match.group(1) + match.group(2).upper()
-	text = re.sub(r'([.!?]\s+)(\S)', capitalize_after, text)
-	if text and text[0].islower():
-		text = text[0].upper() + text[1:]
-	text = re.sub(r'\s+([.!?,;:])', r'\1', text)
-	text = re.sub(r'\n{3,}', '\n\n', text)
-	return text.strip()
+    text = re.sub(r'[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\u0600-\u06ff]', '', text)
+    text = re.sub(r'(?<=[а-яА-ЯёЁ])[a-zA-Z]+', '', text)
+    text = re.sub(r'[a-zA-Z]+(?=[а-яА-ЯёЁ])', '', text)
+    text = re.sub(r'\b[a-zA-Z]+\b', '', text)
+    text = re.sub(r' {2,}', ' ', text)
+    def capitalize_after(match):
+        return match.group(1) + match.group(2).upper()
+    text = re.sub(r'([.!?]\s+)(\S)', capitalize_after, text)
+    if text and text[0].islower():
+        text = text[0].upper() + text[1:]
+    text = re.sub(r'\s+([.!?,;:])', r'\1', text)
+    text = re.sub(r'(?<!\n)\n(?!\n)', '\n\n', text)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
 
 @bot.message_handler(commands=['start'])
 def start(message):
