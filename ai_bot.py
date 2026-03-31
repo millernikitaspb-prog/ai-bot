@@ -73,6 +73,9 @@ def ask_ai(message):
 
 	bot.send_message(chat_id, "Думаю... ⏳")
 
+	if len(histories[chat_id]) > 10:
+		histories[chat_id] = histories[chat_id][-10:]
+
 	response = client.chat.completions.create(
 		model="llama-3.3-70b-versatile",
 		messages=[
