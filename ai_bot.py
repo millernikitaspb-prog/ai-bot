@@ -20,7 +20,7 @@ def clean_response(text):
 	text = re.sub(r' {2,}', ' ', text)
 	def capitalize_after(match):
 		return match.group(1) + match.group(2).upper()
-	text = re.sub(r'([.!?]\s+)([a-яёа-z])', capitalize_after, text)
+	text = re.sub(r'([.!?]\s+)(\S)', capitalize_after, text)
 	if text and text[0].islower():
 		text = text[0].upper() + text[1:]
 	text = re.sub(r'\s+([.!?,;:])', r'\1', text)
