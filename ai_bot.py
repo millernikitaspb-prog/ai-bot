@@ -29,12 +29,12 @@ def clean_response(text):
     text = re.sub(r'(?<!\n)\n(?!\n)', '\n\n', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
     words = text.split()
-    	if len(words) > 300:
-    		text = ''.join(words[:300])
-    		if not text.endswith(('?', '.', '!')):
-    			last_dot = text.rfind('.')
-    			if last_dot > 0:
-    				text = text[:last_dot + 1]
+    if len(words) > 300:
+    	text = ''.join(words[:300])
+    	if not text.endswith(('?', '.', '!')):
+    		last_dot = text.rfind('.')
+    		if last_dot > 0:
+    			text = text[:last_dot + 1]
     return text.strip()
 
 
