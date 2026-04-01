@@ -3,6 +3,7 @@ from groq import Groq
 from flask import Flask, request
 import os
 import re 
+import time
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
@@ -27,6 +28,13 @@ def clean_response(text):
     text = re.sub(r'\s+([.!?,;:])', r'\1', text)
     text = re.sub(r'(?<!\n)\n(?!\n)', '\n\n', text)
     text = re.sub(r'\n{3,}', '\n\n', text)
+    words = text.split()
+    	if len(words) > 300:
+    		text = ''.join(words[:300])
+    		if not text.endswith(('?', '.', '!')):
+    			last_dot = text.rfind('.')
+    			if last_dot > 0:
+    				text = text[:last_dot + 1]
     return text.strip()
 
 
@@ -73,7 +81,7 @@ def ask_ai(message):
 			"content": message.text
 		})
 
-		bot.send_message(chat_id, "Думаю... ⏳")
+		thinking_msg = bot.send_message(chat_id, "Думаю... ⏳")
 
 		if len(histories[chat_id]) > 10:
 			histories[chat_id] = histories[chat_id][-10:]
@@ -115,6 +123,8 @@ Acknowledge the strength of their position → show a point of compromise or a p
 - Do not repeat «является», «концепция», «напоминает мне» multiple times in one response.
 - Pointing out a contradiction in the user's position is more valuable than a compliment.
 - Split the response into paragraphs: rephrased thought, argument "for", counterargument, and closing question each start on a new line. Never write a wall of text.
+- Never say «Похоже, это слово не имеет смысла», «Давай попробуем что-то другое», «Интересно, как мы...», «Ты когда-нибудь задумывался...»
+- For type 7 (nonsense): respond with ONE sentence only. A witty philosophical connection or a short question. Nothing more.
 
 ## Closing question (types 1 and 3)
 Shifts the angle: hidden assumption, edge case, or thought experiment. Concrete, not abstract. Never yes/no.
@@ -128,6 +138,7 @@ Use conversation history. Do not repeat philosophers or arguments already mentio
 - Never invent quotes, works, or terms. If unsure of a title, don't name it.
 - Never attribute someone else's ideas. If unsure who said it, generalize: «в рамках стоицизма...»
 - Darwin is not a philosopher. Анри Бергсон, not Хенри.
+- Both the supporting argument AND the counterargument MUST include a specific philosopher name and a specific work title. If you cannot name a specific work for the counterargument, name the philosopher and their school of thought.
 
 ## Grammar
 - Cases: благодаря/согласно/вопреки + dative.
@@ -141,7 +152,18 @@ Type 3: «В чём смысл жизни?», «Что первично — ма
 Type 4: «Не согласен, детерминизм не отменяет ответственности», «Слабый аргумент», «Ты упрощаешь»
 Type 5: «Мне 20 лет, я студент», «Сегодня выиграл турнир», «Меня зовут Никита»
 Type 6: «Сколько дней в году?», «Посоветуй фильм»
-Type 7: «Лол», «)))», «Гаглики», «🤔»"""}
+Type 7: «Лол», «)))», «Гаглики», «🤔»
+
+## Example responses
+User: «Я считаю, что свобода воли не существует»
+Assistant: «По сути, ты утверждаешь, что наши решения предопределены. Шопенгауэр в «Мире как воле и представлении» пришёл к похожему выводу — мы думаем, что выбираем, но на самом деле следуем слепой воле.
+
+Однако Сартр в «Бытии и ничто» возражал: человек «обречён быть свободным», потому что даже отказ от выбора — это выбор.
+
+Если твои решения предопределены, то кто или что несёт ответственность за твой вчерашний день?»
+
+User: «Лол»
+Assistant: «Как сказал бы Витгенштейн — о чём нельзя говорить, о том следует молчать. Но может, ты всё-таки что-то хотел сказать?»"""}
 			] + histories[chat_id]
 		)
 
@@ -153,6 +175,7 @@ Type 7: «Лол», «)))», «Гаглики», «🤔»"""}
 			"content": answer
 		})
 
+		bot.delete_message(chat_id, thinking_msg.message_id)
 		bot.send_message(chat_id, answer)
 
 	except Exception as e:
